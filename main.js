@@ -25,7 +25,13 @@ function toLog(data) {
         console.log(space + "log.txt was updated!");
     });
 }
-// =================================================================
+class Spotify {
+    constructor(spotify) {
+
+    }
+
+}
+
 // Spotify function, Spotify api
 function getSpotify(songName) {
     let spotify = new Spotify(dataKeys.spotify);
@@ -47,6 +53,7 @@ function getSpotify(songName) {
             console.log(output);
             toLog(output);
         }
+
     });
 
     let getTwitter = function() {
@@ -73,3 +80,84 @@ function getSpotify(songName) {
             }
         });
     }};
+let getMovie = function(movieName) {
+
+    if (!movieName) {
+        movieName = "Mr Nobody";
+    }
+
+    let urlHit = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=f43cfbbf";
+
+    request(urlHit, function(err, res, body) {
+        if (err) {
+            console.log('Error occurred: ' + err);
+            return;
+        } else {
+            let jsonData = JSON.parse(body);
+            output = space + header +
+                space + 'Title: ' + jsonData.Title +
+                space + 'Year: ' + jsonData.Year +
+                space + 'Rated: ' + jsonData.Rated +
+                space + 'IMDB Rating: ' + jsonData.imdbRating +
+                space + 'Country: ' + jsonData.Country +
+                space + 'Language: ' + jsonData.Language +
+                space + 'Plot: ' + jsonData.Plot +
+                space + 'Actors: ' + jsonData.Actors +
+                space + 'Tomato Rating: ' + jsonData.Ratings[1].Value +
+                space + 'IMDb Rating: ' + jsonData.imdbRating + "\n";
+
+            console.log(output);
+            toLog(output);
+        }
+    });
+};
+function doWhatItSays() {
+    fs.readFile("random.txt", "utf8", function(error, data) {
+        getSpotify(data);
+    });
+}
+
+let questions = [{
+    type: 'list',
+    name: 'programs',
+    message: 'What would you like to do?',
+    choices: ['Spotify', 'Twitter', 'Movie', 'Do what it says']
+},
+    {
+        type: 'input',
+        name: 'choiceMovie',
+        message: 'What movie would you like?',
+        when: function(answers) {
+            return answers.programs == 'Movie';
+        }
+    },
+    {
+        type: 'input',
+        name: 'choiceSong',
+        message: 'What song would you like?',
+        when: function(answers) {
+            return answers.programs == 'Spotify';
+        }
+    }
+    ];
+inquirer
+    .prompt(questions)
+    .then(answers => {
+        switch (answers.programs) {
+
+            case 'Spotify':
+                getSpotify(answers.songChoice);
+                break;
+            case 'Twitter':
+                getTwitter()
+                break
+            case 'Movie':
+                getMovie(answers.movieChoice);
+                break;
+            case 'Do what it says':
+                doWhatItSays();
+                break;
+            default:
+                console.log("I don't know");
+        }
+    });
